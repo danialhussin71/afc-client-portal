@@ -27,6 +27,7 @@ export function Dialog({
 }) {
   const ref = React.useRef<HTMLDialogElement>(null);
   const [open, setOpen] = React.useState(false);
+  const titleId = React.useId();
   const close = React.useCallback(() => ref.current?.close(), []);
 
   const show = () => {
@@ -44,7 +45,7 @@ export function Dialog({
         data-ui="dialog"
         onClose={() => setOpen(false)}
         onClick={(e) => e.target === ref.current && close()}
-        aria-labelledby="dialog-title"
+        aria-labelledby={titleId}
       >
         <div
           className={cn(
@@ -54,7 +55,7 @@ export function Dialog({
         >
           <div className="flex items-start gap-4 px-6 pb-2 pt-5">
             <div className="min-w-0 flex-1">
-              <h2 id="dialog-title" className="text-lg font-semibold tracking-tight text-ink">
+              <h2 id={titleId} className="text-lg font-semibold tracking-tight text-ink">
                 {title}
               </h2>
               {description && <p className="mt-1 text-sm text-ink-muted">{description}</p>}

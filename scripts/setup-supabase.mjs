@@ -350,8 +350,9 @@ Supabase is ready.
   URL:       https://${ref}.supabase.co
   Keys:      saved in .env.local (secret, not committed)
 
-Next: npm run dev, then open http://localhost:3000 and create the first account.
-The first account becomes the admin.`);
+The portal is invite-only: only emails on the access list can sign up.
+Next: npm run admin -- you@example.com   (gives that email admin access)
+      npm run dev, then sign up at http://localhost:3000/signup with that email.`);
 }
 
 main().catch((err) => log.fail(err.message || String(err)));

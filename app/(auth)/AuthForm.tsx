@@ -35,6 +35,7 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
         inputMode="email"
         placeholder="you@example.com"
         defaultValue={state?.email}
+        hint={isLogin ? undefined : "Use the email you were invited with."}
         required
       />
       <Field
@@ -61,9 +62,9 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
       </SubmitButton>
 
       <p className="text-center text-sm text-ink-muted">
-        {isLogin ? "New here? " : "Already have an account? "}
+        {isLogin ? "First time here? " : "Already have an account? "}
         <Link href={isLogin ? "/signup" : "/login"} className="font-medium text-brand-text underline-offset-4 hover:underline">
-          {isLogin ? "Create an account" : "Sign in"}
+          {isLogin ? "Create your account" : "Sign in"}
         </Link>
       </p>
     </form>

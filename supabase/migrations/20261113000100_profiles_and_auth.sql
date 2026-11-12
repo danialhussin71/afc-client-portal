@@ -1,12 +1,19 @@
 -- ============================================================================
 -- Profiles + roles
 --
+-- Invite-only. Nobody can create an account unless their email is on
+-- public.allowed_emails. The admin adds people there (from the portal, or with
+-- `npm run admin -- you@example.com` / `npm run invite -- client@example.com`).
+-- The role on the allowed_emails row ('admin' or 'client') becomes their role
+-- when they sign up.
+--
 -- Every auth user gets one row in public.profiles, created by a trigger the
--- moment they sign up. The FIRST person to sign up becomes 'admin' (that's the
--- portal owner). Everyone after that is a 'client'.
+-- moment they sign up. The same trigger refuses anyone who isn't invited, so
+-- the rule holds even if someone calls the Supabase API directly.
 --
 -- Security model:
 --   * RLS is on. A user can read and edit their own profile. Admins can read all.
+--   * Only admins can read or change allowed_emails.
 --   * Users can only change full_name and avatar_url. Nobody can promote
 --     themselves: the role column is not writable from the browser at all.
 --     Role changes go through the server with the service role key.
@@ -68,7 +75,33 @@ create trigger profiles_set_updated_at
   before update on public.profiles
   for each row execute function public.set_updated_at();
 
--- Create the profile when someone signs up. First user ever = admin.
+-- ---------------------------------------------------------------------------
+-- Allowed emails: the invite list
+-- ---------------------------------------------------------------------------
+
+create table public.allowed_emails (
+  email       text primary key check (email = lower(btrim(email)) and email like '%_@_%'),
+  role        public.user_role not null default 'client',
+  full_name   text not null default '',
+  invited_by  uuid references auth.users (id) on delete set null,
+  created_at  timestamptz not null default now()
+);
+
+comment on table public.allowed_emails is 'Who may create an account, and with which role. Managed by the admin.';
+
+alter table public.allowed_emails enable row level security;
+
+revoke all on table public.allowed_emails from anon, authenticated;
+grant select, insert, update, delete on table public.allowed_emails to authenticated;
+
+create policy "Admins manage the invite list"
+  on public.allowed_emails for all
+  to authenticated
+  using ((select public.is_admin()))
+  with check ((select public.is_admin()));
+
+-- Create the profile when someone signs up, with the role they were invited
+-- with. No invite = no account (the sign-up is rolled back).
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -76,18 +109,23 @@ security definer
 set search_path = ''
 as $$
 declare
-  is_first boolean;
+  invite public.allowed_emails;
 begin
-  -- Serialise concurrent sign-ups so two people can't both become "first".
-  lock table public.profiles in share row exclusive mode;
-  select not exists (select 1 from public.profiles) into is_first;
+  select * into invite
+  from public.allowed_emails
+  where email = lower(btrim(coalesce(new.email, '')));
+
+  if not found then
+    raise exception 'not_invited: % is not on the invite list', new.email
+      using errcode = 'P0001';
+  end if;
 
   insert into public.profiles (id, email, full_name, role)
   values (
     new.id,
-    coalesce(new.email, ''),
-    coalesce(new.raw_user_meta_data ->> 'full_name', ''),
-    case when is_first then 'admin'::public.user_role else 'client'::public.user_role end
+    lower(coalesce(new.email, '')),
+    coalesce(nullif(new.raw_user_meta_data ->> 'full_name', ''), invite.full_name),
+    invite.role
   );
   return new;
 end;

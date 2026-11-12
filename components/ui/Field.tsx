@@ -1,4 +1,5 @@
 import * as React from "react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Shared input look. 16px text on phones so iOS doesn't zoom in. */
@@ -68,17 +69,12 @@ export function Textarea({ className, rows = 4, ...props }: React.TextareaHTMLAt
 
 export function Select({ className, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select
-      className={cn(
-        inputClass,
-        "h-11 appearance-none bg-[length:16px] bg-[right_0.75rem_center] bg-no-repeat pr-9 sm:h-10",
-        "bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2374737a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")]",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </select>
+    <div className="relative">
+      <select className={cn(inputClass, "h-11 cursor-pointer appearance-none pr-10 sm:h-10", className)} {...props}>
+        {children}
+      </select>
+      <ChevronDown aria-hidden className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-ink-faint" />
+    </div>
   );
 }
 

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { ArrowRight, CalendarPlus, Sparkles, UserPlus, Users } from "lucide-react";
+import { ArrowRight, CalendarPlus, MailCheck, Sparkles, UserPlus, Users } from "lucide-react";
 import { requireViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { brand } from "@/lib/brand";
 import { firstName, formatDate, timeAgo } from "@/lib/utils";
+import { signupUrl } from "@/lib/urls";
+import { AddAccessForm } from "../admin/AccessForms";
 import type { Profile } from "@/lib/types";
 import {
   Avatar,
@@ -38,20 +39,16 @@ export default async function DashboardPage() {
   );
 }
 
-async function signupUrl() {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}/signup`;
-}
-
 async function AdminDashboard({ name, today }: { name: string; today: string }) {
   const supabase = await createClient();
-  const [{ data, error }, link] = await Promise.all([
+  const [{ data, error }, invites, link] = await Promise.all([
     supabase.from("profiles").select("*").eq("role", "client").order("created_at", { ascending: false }),
+    supabase.from("allowed_emails").select("email").eq("role", "client"),
     signupUrl(),
   ]);
   const clients = (data ?? []) as Profile[];
+  const joined = new Set(clients.map((c) => c.email));
+  const waiting = (invites.data ?? []).filter((i) => !joined.has(i.email)).length;
   const now = Date.now();
   const lastWeek = clients.filter((c) => now - new Date(c.created_at).getTime() < 7 * DAY).length;
   const lastMonth = clients.filter((c) => now - new Date(c.created_at).getTime() < 30 * DAY).length;
@@ -71,13 +68,18 @@ async function AdminDashboard({ name, today }: { name: string; today: string }) 
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Clients" value={clients.length} icon={<Users />} note="Everyone with an account" />
         <StatCard
-          label="Joined this week"
-          value={lastWeek}
-          icon={<UserPlus />}
-          note={lastWeek ? "New this week" : "No one new yet"}
+          label="Clients"
+          value={clients.length}
+          icon={<Users />}
+          note={lastWeek ? `${lastWeek} new this week` : "Everyone with an account"}
           trend={lastWeek ? "up" : undefined}
+        />
+        <StatCard
+          label="Invited"
+          value={waiting}
+          icon={<MailCheck />}
+          note={waiting ? "Added, not signed up yet" : "Everyone you added has joined"}
         />
         <StatCard label="Joined this month" value={lastMonth} icon={<CalendarPlus />} note="Last 30 days" />
       </div>
@@ -103,7 +105,7 @@ async function AdminDashboard({ name, today }: { name: string; today: string }) 
                 className="border-0 py-10"
                 icon={<UserPlus />}
                 title="No clients yet"
-                description="Share your sign-up link. Everyone who joins shows up here."
+                description="Add a client's email, then send them your sign-up link. They show up here when they join."
               />
             </CardBody>
           ) : (
@@ -122,14 +124,15 @@ async function AdminDashboard({ name, today }: { name: string; today: string }) 
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardHeader icon={<Sparkles />} title="Invite your clients" description="Send them this link to create their account." />
-          <CardBody className="space-y-3">
-            <Input readOnly value={link} aria-label="Sign-up link" className="font-mono text-[13px] sm:text-[13px]" />
-            <CopyButton value={link} label="Copy link" variant="primary" />
-            <p className="text-[13px] text-ink-faint">
-              You&apos;re the admin because you signed up first. Everyone after you joins as a client.
-            </p>
+          <CardHeader icon={<UserPlus />} title="Add a client" description="Only people you add can create an account." />
+          <CardBody>
+            <AddAccessForm />
           </CardBody>
+          <div className="space-y-3 border-t border-line-soft px-5 py-5">
+            <p className="text-[13px] font-medium text-ink">Then send them your sign-up link</p>
+            <Input readOnly value={link} aria-label="Sign-up link" className="font-mono text-[13px] sm:text-[13px]" />
+            <CopyButton value={link} label="Copy link" variant="secondary" />
+          </div>
         </Card>
       </div>
     </>

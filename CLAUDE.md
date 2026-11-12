@@ -2,7 +2,7 @@
 
 You are building a **client portal** for a coach, consultant or small business owner. They are not a developer. They will watch you work and want plain answers, not jargon.
 
-This repo is a working starter: Next.js 16 (App Router) + Supabase auth + Tailwind v4, with a full design system. Sign-up, sign-in, sign-out, a profiles table with roles, a sidebar app shell, a dashboard, an account page, an admin client list and a live `/styleguide` already work. There is no landing page: `/` goes to sign-in. **Build on top of it. Don't rewrite what's here.**
+This repo is a working starter: Next.js 16 (App Router) + Supabase auth + Tailwind v4, with a full design system. Invite-only sign-up (only emails on the access list can create an account), sign-in, sign-out, a profiles table with roles, a sidebar app shell, a dashboard, an account page, an admin client list where the admin adds and removes people, and a live `/styleguide` already work. There is no landing page: `/` goes to sign-in. **Build on top of it. Don't rewrite what's here.**
 
 **Read `DESIGN.md` before you build any page.** It says which component to use for what, the tokens, and the rules every page follows.
 
@@ -56,14 +56,23 @@ Build all of it. Don't wait for approval on details; make sensible choices and m
 Follow **Building features** below and `DESIGN.md`.
 - New pages for signed-in users go in `app/(portal)/`. Add each one to `components/shell/nav.ts` (client pages in `MAIN_NAV`, admin pages in `ADMIN_NAV`) with a lucide icon.
 - Build the hero feature first and make it excellent, then every other feature to the same standard. Wire up the connections between features the brief describes.
-- Replace the placeholder cards on the client dashboard with the brief's **Home dashboard** (their latest result, their trend, their next move). Keep the admin dashboard's stats and invite card, and add the brief's admin numbers.
+- Replace the placeholder cards on the client dashboard with the brief's **Home dashboard** (their latest result, their trend, their next move). Keep the admin dashboard's stats and the "Add a client" card, and add the brief's admin numbers.
 - Every new route gets a `loading.tsx` skeleton, an empty state for each list, and an error message if a query fails.
 
 ### 7. Check it
 ```bash
 npm run build
 ```
-Must pass with no errors. Then `npm run dev`, open http://localhost:3000, sign up (the first account becomes admin) and click through every page. Use each feature with the **worked examples from the brief** and check you get the same answers. If the brief's own maths is wrong (a target that wouldn't reach the goal, an example that doesn't add up), fix it, keep the owner's intent, and tell the user what you changed. Fix what's broken.
+Must pass with no errors. The portal is invite-only, so give yourself test access first:
+```bash
+npm run admin -- test-admin@test.dev
+npm run invite -- test-client@test.dev
+```
+Then `npm run dev`, open http://localhost:3000/signup, create both accounts and click through every page as each. Use each feature with the **worked examples from the brief** and check you get the same answers. If the brief's own maths is wrong (a target that wouldn't reach the goal, an example that doesn't add up), fix it, keep the owner's intent, and tell the user what you changed. Fix what's broken. When you're done testing, remove the test accounts so the user starts clean:
+```bash
+npm run access -- remove test-admin@test.dev
+npm run access -- remove test-client@test.dev
+```
 
 ### 7b. Polish pass
 Go through every screen once more against **Make it beautiful** below, in light and dark mode and at 375px wide. This step is not optional.
@@ -72,7 +81,16 @@ Go through every screen once more against **Make it beautiful** below, in light 
 ```bash
 npm run deploy
 ```
-Creates the Vercel project, copies the keys over, deploys and prints the live URL. Give the user the link and tell them: sign up on the live site first (that makes them the admin), then try a second account in a private window to see the client view.
+Creates the Vercel project, copies the keys over, deploys and prints the live URL.
+
+### 9. Make the user the admin
+Nobody can sign up yet: the portal is invite-only and the access list is empty. **Ask the user: "Which email should be the admin of your portal?"** and wait for their answer. Then run:
+```bash
+npm run admin -- their@email.com
+```
+Give them the live link and tell them, in plain words:
+1. Open `<live URL>/signup` and create your account with that email. You're the admin.
+2. To let a client in, go to **Clients → Add client** (or the "Add a client" card on the dashboard), enter their email, then send them your sign-up link. Only emails you add can create an account.
 
 ## Building features
 
@@ -201,12 +219,15 @@ create policy "Admins write feedback" on public.submission_feedback
 ```
 - Always wrap `auth.uid()` and `is_admin()` in `(select ...)` in policies (it's much faster).
 - Index every foreign key column.
-- `public.is_admin()` already exists. Roles are `admin` and `client` on `public.profiles`. The first sign-up is the admin.
+- `public.is_admin()` already exists. Roles are `admin` and `client` on `public.profiles`.
+- Access is invite-only: `public.allowed_emails` (email, role, full_name) is the list of who may sign up. A trigger refuses sign-ups from any other email and gives new users the role on their invite. Admins manage it from `/admin`; from the terminal use `npm run admin` / `npm run invite` / `npm run access`.
+- Feature tables reference `public.profiles (id) on delete cascade`, so removing someone's access also removes their data.
 
 **Don't**
 - Don't turn email confirmation back on, add OAuth providers, or add payments unless the brief asks and the user confirms.
 - Don't add big dependencies (UI kits, ORMs, state libraries, animation libraries, chart libraries). Build on the design system.
 - Don't add a landing page. `/` goes to sign-in; the sign-in brand panel is the first impression.
+- Don't open up sign-up. The portal is invite-only; never remove the `allowed_emails` check.
 - Don't change the auth flow, `proxy.ts`, the app shell or the profiles migration unless something is broken.
 
 ---
@@ -219,10 +240,15 @@ create policy "Admins write feedback" on public.submission_feedback
 | `npm run dev` | Run locally at http://localhost:3000 |
 | `npm run build` | Production build. Must pass before deploying |
 | `npm run deploy` | Deploy to the user's Vercel and print the live URL |
+| `npm run admin -- you@example.com` | Give an email admin access (they can then sign up) |
+| `npm run invite -- client@example.com` | Give an email client access |
+| `npm run access -- list` | Show everyone with access and whether they've joined |
+| `npm run access -- remove someone@example.com` | Take access away (deletes their account and data) |
 
 ## If something breaks
 - **"Missing NEXT_PUBLIC_SUPABASE_URL"**: run `npm run setup`, then restart `npm run dev`.
 - **Supabase won't create a project**: the free plan allows 2 active projects. The user pauses or deletes one at supabase.com/dashboard, then run `npm run setup` again.
 - **Migration error**: read the SQL error, fix the new migration file, `npm run db:push`.
 - **Deploy build fails**: run `npm run build` locally, fix the error, `npm run deploy` again.
+- **"That email doesn't have access yet"**: the email isn't on the access list. `npm run admin -- email` or `npm run invite -- email`, then sign up again.
 - **Live site asks for a Vercel login**: Vercel project → Settings → Deployment Protection → off for production.

@@ -1,13 +1,14 @@
 # Client Portal Starter
 
-A starter for a private client portal: your clients sign up, sign in and see their own space. You're the admin.
+A starter for a private, invite-only client portal: you add your clients' emails, they sign up and see their own space. You're the admin.
 
 Built with **Next.js 16**, **Supabase** (auth + Postgres) and **Tailwind CSS v4**. Made for the AFC SaaS session by Purely Personal.
 
 ## What's already done
 
 - Email + password sign-up and sign-in, **no email confirmation** (people go straight in)
-- `profiles` table with roles: the **first** person to sign up is the **admin**, everyone after is a **client**
+- **Invite-only**: only emails on the access list (`allowed_emails`) can create an account. The admin adds people from the Clients page, or with `npm run admin -- you@example.com` / `npm run invite -- client@example.com`
+- `profiles` table with roles (**admin** or **client**, set by the invite)
 - Row level security on every table, with admin and client policies
 - No landing page: the portal opens on a branded sign-in page
 - A full design system (`DESIGN.md`): tokens, light and dark mode, buttons, forms, cards, stats, progress, tables, badges, dialogs, empty states and skeletons. See it live at `/styleguide`

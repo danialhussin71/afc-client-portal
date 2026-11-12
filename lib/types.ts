@@ -15,6 +15,15 @@ export type Profile = {
   updated_at: string;
 };
 
+/** Someone the admin has given access to. They can sign up with this email. */
+export type AllowedEmail = {
+  email: string;
+  role: UserRole;
+  full_name: string;
+  invited_by: string | null;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -22,6 +31,12 @@ export type Database = {
         Row: Profile;
         Insert: never;
         Update: Partial<Pick<Profile, "full_name" | "avatar_url">>;
+        Relationships: [];
+      };
+      allowed_emails: {
+        Row: AllowedEmail;
+        Insert: Pick<AllowedEmail, "email"> & Partial<Omit<AllowedEmail, "email">>;
+        Update: Partial<AllowedEmail>;
         Relationships: [];
       };
     };

@@ -13,7 +13,10 @@
     "typecheck": "tsc --noEmit",
     "setup": "node scripts/setup-supabase.mjs",
     "db:push": "node scripts/setup-supabase.mjs --migrate-only",
-    "deploy": "node scripts/deploy-vercel.mjs"
+    "deploy": "node scripts/deploy-vercel.mjs",
+    "admin": "node scripts/access.mjs add --admin",
+    "invite": "node scripts/access.mjs add",
+    "access": "node scripts/access.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

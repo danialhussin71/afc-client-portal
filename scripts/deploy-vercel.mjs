@@ -18,7 +18,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { ENV_LOCAL, ROOT, argValue, loadTokens, log, projectName, readEnvFile } from "./lib/env.mjs";
+import { ENV_LOCAL, ROOT, argValue, loadTokens, log, projectName, readEnvFile, writeEnvLocal } from "./lib/env.mjs";
 
 const VERCEL = "https://api.vercel.com";
 const { tokens, foundAt, searched } = loadTokens();
@@ -169,6 +169,7 @@ async function main() {
   const liveUrl = aliased || (await productionUrl(project.id, scope.teamId, deploymentUrl));
   if (!liveUrl) log.fail("Deployed, but couldn't work out the live URL.", "Open vercel.com/dashboard to find it.");
   log.ok(`Live at ${liveUrl}`);
+  writeEnvLocal({ LIVE_URL: liveUrl });
 
   await pointSupabaseAtLiveSite(liveUrl);
 
@@ -186,8 +187,9 @@ async function main() {
 Your portal is live:
   ${liveUrl}
 
-Open it, create the first account (that's you, the admin), then try a second
-account in a private window to see what a client sees.`);
+The portal is invite-only. Give yourself admin access with:
+  npm run admin -- you@example.com
+then open ${liveUrl}/signup and create your account with that email.`);
 }
 
 main().catch((err) => log.fail(err.message || String(err)));
