@@ -6,6 +6,9 @@ import {
   Alert,
   Avatar,
   Badge,
+  BarChart,
+  LineChart,
+  ScoreMeter,
   Button,
   Card,
   CardBody,
@@ -148,6 +151,54 @@ export default async function StyleguidePage() {
             </div>
           </CardBody>
         </Card>
+      </Section>
+
+      <Section title="Charts" description="For trackers and scorecards. Brand colour, no chart library.">
+        <div className="grid items-start gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader title="Booked calls per week" description="LineChart with a goal line" />
+            <CardBody>
+              <LineChart
+                unit="calls"
+                goal={10}
+                summary="Booked calls rose from 3 to 11 over 8 weeks, passing the goal of 10."
+                data={[3, 4, 4, 6, 5, 8, 9, 11].map((value, i) => ({ label: `W${i + 1}`, value }))}
+              />
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title="Revenue by month" description="BarChart, highlighting this month" />
+            <CardBody>
+              <BarChart
+                unit="£"
+                highlight={5}
+                data={[
+                  { label: "Jun", value: 4200 },
+                  { label: "Jul", value: 5100 },
+                  { label: "Aug", value: 4800 },
+                  { label: "Sep", value: 6900 },
+                  { label: "Oct", value: 7400 },
+                  { label: "Nov", value: 9100 },
+                ]}
+              />
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title="Offer readiness" description="ScoreMeter for scorecard results" />
+            <CardBody>
+              <ScoreMeter
+                score={62}
+                max={100}
+                bands={[
+                  { upTo: 40, label: "Foundations" },
+                  { upTo: 75, label: "Building" },
+                  { upTo: 100, label: "Ready to launch" },
+                ]}
+              />
+            </CardBody>
+          </Card>
+          <StatCard label="Weekly leads" value={38} note="Up from 21 a month ago" trend="up" trendline={[21, 24, 22, 29, 31, 38]} />
+        </div>
       </Section>
 
       <Section title="Cards and lists">

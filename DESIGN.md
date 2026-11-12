@@ -59,8 +59,9 @@ Light and dark mode both work automatically when you only use these. Check both.
 | Page top | `PageHeader` (`eyebrow`, `title`, `description`, `actions`) |
 | Group of content | `Card` + `CardHeader` (`title`, `description`, `icon`, `action`) + `CardBody` / `CardFooter` |
 | Titled area without a card | `Section` |
-| A key number | `StatCard` (`label`, `value`, `note`, `icon`, `trend`) |
+| A key number | `StatCard` (`label`, `value`, `note`, `icon`, `trend`, `trendline`) |
 | Progress | `ProgressBar`, `ProgressRing` (value 0 to 1) |
+| Charts | `LineChart` (trend, optional `goal`), `BarChart` (compare, optional `highlight`), `Sparkline` (or `StatCard trendline`), `ScoreMeter` (score on bands). Always pass `summary` with the key point for screen readers |
 | Rows of things | `List` + `ListItem` (`leading`, `title`, `description`, `trailing`) |
 | Tabular data | `Table`, `THead`, `Th`, `TBody`, `Tr`, `Td`. Hide minor columns on phones with `hidden md:table-cell` |
 | Status | `Badge` (`tone`, `dot`) |

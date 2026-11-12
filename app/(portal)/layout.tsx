@@ -20,17 +20,17 @@ export default async function PortalLayout({ children }: { children: React.React
         Skip to content
       </a>
 
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 lg:block">
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 lg:block print:hidden">
         <SidebarContent isAdmin={isAdmin} user={user} />
       </aside>
 
       <MobileNav isAdmin={isAdmin} user={user} />
 
-      <div className="min-w-0 flex-1 lg:py-2 lg:pr-2">
+      <div className="min-w-0 flex-1 lg:py-2 lg:pr-2 print:p-0">
         <main
           id="main"
           tabIndex={-1}
-          className="min-h-[calc(100dvh-3.5rem)] bg-surface outline-none lg:min-h-[calc(100dvh-1rem)] lg:rounded-2xl lg:shadow-panel"
+          className="min-h-[calc(100dvh-3.5rem)] bg-surface outline-none lg:min-h-[calc(100dvh-1rem)] lg:rounded-2xl lg:shadow-panel print:shadow-none"
         >
           <div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8 lg:px-12 lg:py-12">{children}</div>
         </main>

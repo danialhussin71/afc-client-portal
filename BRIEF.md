@@ -9,11 +9,9 @@ The brief uses these headings:
 ## Who it's for
 ## Brand kit
 ## Sign-in page
-## Pages
-## Journey stages
-## Starter actions
-## Weekly check-in
-## Resources
+## Features
+(for each: the moment it's for, screens, inputs, the logic written out in full with a worked example, outputs, what's saved, what the admin sees, the empty state)
+## Home dashboard
 ## Admin view
 ## Words
 ## Not in version 1

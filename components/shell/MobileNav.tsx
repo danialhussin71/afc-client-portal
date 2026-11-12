@@ -15,7 +15,7 @@ export function MobileNav({ isAdmin, user }: { isAdmin: boolean; user: UserMenuP
   const close = () => ref.current?.close();
 
   return (
-    <header className="glass sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-line px-2 lg:hidden">
+    <header className="glass sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-line px-2 lg:hidden print:hidden">
       <button
         type="button"
         onClick={() => ref.current?.showModal()}

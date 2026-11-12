@@ -13,6 +13,7 @@ export { PasswordInput } from "./PasswordInput";
 export { Avatar } from "./Avatar";
 export { StatCard } from "./Stat";
 export { ProgressBar, ProgressRing } from "./Progress";
+export { LineChart, BarChart, Sparkline, ScoreMeter, type Point } from "./Chart";
 export { Alert, EmptyState } from "./Feedback";
 export { Table, THead, Th, TBody, Tr, Td, List, ListItem } from "./Table";
 export { Dialog } from "./Dialog";
