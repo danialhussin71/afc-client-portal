@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /** Pages anyone can open without signing in. Everything else needs a session. */
-const PUBLIC_PATHS = ["/", "/login", "/signup"];
+const PUBLIC_PATHS = ["/login", "/signup"];
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -33,13 +33,21 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // No landing page: "/" goes straight to sign-in, or the dashboard if signed in.
+  if (path === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = user ? "/dashboard" : "/login";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   const isPublic = PUBLIC_PATHS.includes(path);
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
-    url.searchParams.set("next", path);
+    if (path !== "/dashboard") url.searchParams.set("next", path);
     return NextResponse.redirect(url);
   }
 

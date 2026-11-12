@@ -2,7 +2,9 @@
 
 You are building a **client portal** for a coach, consultant or small business owner. They are not a developer. They will watch you work and want plain answers, not jargon.
 
-This repo is a working starter: Next.js 16 (App Router) + Supabase auth + Tailwind v4. Sign-up, sign-in, sign-out, a profiles table with roles, a dashboard, an account page and an admin client list already work. **Build on top of it. Don't rewrite what's here.**
+This repo is a working starter: Next.js 16 (App Router) + Supabase auth + Tailwind v4, with a full design system. Sign-up, sign-in, sign-out, a profiles table with roles, a sidebar app shell, a dashboard, an account page, an admin client list and a live `/styleguide` already work. There is no landing page: `/` goes to sign-in. **Build on top of it. Don't rewrite what's here.**
+
+**Read `DESIGN.md` before you build any page.** It says which component to use for what, the tokens, and the rules every page follows.
 
 ---
 
@@ -14,9 +16,14 @@ When the user asks you to build their portal, do these steps in order. Tell them
 - Read `BRIEF.md` in full. That's what the portal is for. If it's still the placeholder, stop and ask the user for their brief.
 - Read this file and skim `app/`, `lib/` and `supabase/migrations/` so you know what already exists.
 
-### 2. Name it
-- Set `name` in `package.json` to a short lowercase slug of the portal name from the brief (letters, numbers, hyphens, e.g. `bright-path-portal`). The Supabase and Vercel projects use this name.
-- Update `lib/site.ts` with the portal name, tagline and description from the brief.
+### 2. Name it and brand it
+The brief has a **Brand kit** section. Apply it exactly (see `DESIGN.md` §1):
+- `package.json` → `name`: a short lowercase slug of the portal name (letters, numbers, hyphens, e.g. `bright-path-portal`). The Supabase and Vercel projects use this name.
+- `lib/brand.ts` → name, tagline, description, owner, and the sign-in panel words (`auth.headline`, `auth.subline`, `auth.quote` if the brief has a real client quote, else `null`).
+- `app/brand.css` → the brand colours. Work out `--brand-ink`, `--brand-text` and `--brand-text-dark` so they reach 4.5:1 contrast.
+- `app/fonts.ts` → the brand fonts if they're on Google Fonts. If not, pick the closest Google Font and say which.
+- Logo: if there's a `brand` folder next to this repo (`../brand/`), copy the logo files into `public/brand/` and set the paths in `lib/brand.ts` (`mark` = square icon, `full` = wide logo, `fullOnDark` = light version). Look at each image first to tell which is which. No files → leave them `null`; the monogram is used.
+- `app/(auth)/Showcase.tsx` → change the preview words to match the portal (its stage names, its tracked number).
 
 ### 3. Install and set up Supabase
 ```bash
@@ -40,7 +47,9 @@ Then build it. Don't wait for approval on small details; make sensible choices a
 - Add the new table's types to `lib/types.ts` (Row / Insert / Update) so queries are typed.
 
 ### 6. Build the pages
-Follow the conventions below. Every new route gets a `loading.tsx` skeleton.
+- New pages for signed-in users go in `app/(portal)/`. Add each one to `components/shell/nav.ts` (client pages in `MAIN_NAV`, admin pages in `ADMIN_NAV`) with a lucide icon.
+- Build every page from `@/components/ui` following `DESIGN.md`. Replace the placeholder cards on the client dashboard with the real thing (their progress, next step, latest note). Keep the admin dashboard's stats and invite card, and add the brief's admin numbers.
+- Every new route gets a `loading.tsx` skeleton, an empty state for each list, and an error message if a query fails.
 
 ### 7. Check it
 ```bash
@@ -65,15 +74,13 @@ Creates the Vercel project, copies the keys over, deploys and prints the live UR
 - `lib/supabase/admin.ts` (service role) **bypasses RLS**. Only use it in server code after `requireAdmin()`, and only when RLS genuinely can't express the rule. Never import it in a Client Component. Never put the service role key in anything prefixed `NEXT_PUBLIC_`.
 - Never commit `.env.local` or `tokens.txt`. Never print keys or tokens in chat.
 
-**UI**
-- Use the components in `components/ui`: `Card`, `PageHeader`, `EmptyState`, `Alert`, `Field`, `Button`, `SubmitButton`, `Skeleton`, `PageSkeleton`, `ListSkeleton`.
-- To make a `<Link>` look like a button, use `buttonClass()` from `components/ui/button-styles.ts` (works in Server Components; `Button.tsx` is client-only).
-- Every route: a `loading.tsx` skeleton shaped like the real content, an empty state when a list is empty, an error message when a query fails. Never a blank screen.
-- Buttons that submit forms are `SubmitButton` so they show a pending state and can't be double-clicked.
-- Colours, radius and font live in the `@theme` block in `app/globals.css`. Re-brand there (brand colours from the brief), not with one-off hex codes in components.
-- Mobile first: check every page at phone width.
-- New pages for signed-in users go inside `app/(portal)/`. Add them to the nav in `components/shell/Header.tsx`. Admin-only links go in the admin branch.
-- Words on screen: short, plain, friendly. No jargon, no lorem ipsum. Use the tone from the brief.
+**UI** (full rules in `DESIGN.md`)
+- Import components from `@/components/ui`. Check `/styleguide` for what exists before making anything new.
+- Colours only through tokens (`bg-surface`, `text-ink-muted`, `bg-brand` ...). No hex codes or Tailwind palette colours in components.
+- To make a `<Link>` look like a button use `ButtonLink` or `buttonClass()`.
+- Form submits use `SubmitButton` (pending state, no double clicks).
+- Mobile first: check every page at 375px wide, in light and dark mode.
+- Words on screen: short, plain, friendly, in the tone from the brief. No jargon, no lorem ipsum.
 
 **RLS patterns** (copy these)
 ```sql
@@ -119,8 +126,9 @@ create policy "Admins manage resources" on public.resources
 
 **Don't**
 - Don't turn email confirmation back on, add OAuth providers, or add payments unless the brief asks and the user confirms.
-- Don't add big dependencies (UI kits, ORMs, state libraries). The starter has what v1 needs.
-- Don't change the auth flow, `proxy.ts` or the profiles migration unless something is broken.
+- Don't add big dependencies (UI kits, ORMs, state libraries, animation libraries). The starter has what v1 needs.
+- Don't add a landing page. `/` goes to sign-in; the sign-in brand panel is the first impression.
+- Don't change the auth flow, `proxy.ts`, the app shell or the profiles migration unless something is broken.
 
 ---
 

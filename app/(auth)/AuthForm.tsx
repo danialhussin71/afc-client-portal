@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { SubmitButton } from "@/components/ui/Button";
+import { ArrowRight } from "lucide-react";
 import { Field } from "@/components/ui/Field";
-import { Alert } from "@/components/ui/Card";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { SubmitButton } from "@/components/ui/SubmitButton";
+import { Alert } from "@/components/ui/Feedback";
 import { signIn, signUp, type AuthState } from "./actions";
 
 export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
@@ -12,11 +14,18 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
   const isLogin = mode === "login";
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form action={action} className="space-y-5" noValidate>
       {next && <input type="hidden" name="next" value={next} />}
 
       {!isLogin && (
-        <Field label="Full name" name="full_name" autoComplete="name" defaultValue={state?.fullName} required />
+        <Field
+          label="Full name"
+          name="full_name"
+          autoComplete="name"
+          placeholder="Jane Smith"
+          defaultValue={state?.fullName}
+          required
+        />
       )}
       <Field
         label="Email"
@@ -24,29 +33,36 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
         type="email"
         autoComplete="email"
         inputMode="email"
+        placeholder="you@example.com"
         defaultValue={state?.email}
         required
       />
       <Field
         label="Password"
         name="password"
-        type="password"
-        autoComplete={isLogin ? "current-password" : "new-password"}
         hint={isLogin ? undefined : "At least 8 characters."}
-        required
-        minLength={isLogin ? undefined : 8}
-      />
+      >
+        <PasswordInput
+          id="f-password"
+          name="password"
+          autoComplete={isLogin ? "current-password" : "new-password"}
+          minLength={isLogin ? undefined : 8}
+          aria-describedby={isLogin ? undefined : "f-password-hint"}
+          required
+        />
+      </Field>
 
-      {state?.error && <Alert>{state.error}</Alert>}
+      {state?.error && <Alert tone="danger">{state.error}</Alert>}
       {state?.notice && <Alert tone="success">{state.notice}</Alert>}
 
-      <SubmitButton className="h-11 w-full" pendingText={isLogin ? "Signing in…" : "Creating your account…"}>
+      <SubmitButton size="lg" className="w-full" pendingText={isLogin ? "Signing in…" : "Creating your account…"}>
         {isLogin ? "Sign in" : "Create account"}
+        <ArrowRight aria-hidden />
       </SubmitButton>
 
-      <p className="text-center text-sm text-[var(--color-muted)]">
+      <p className="text-center text-sm text-ink-muted">
         {isLogin ? "New here? " : "Already have an account? "}
-        <Link href={isLogin ? "/signup" : "/login"} className="font-semibold text-[var(--color-brand)] hover:underline">
+        <Link href={isLogin ? "/signup" : "/login"} className="font-medium text-brand-text underline-offset-4 hover:underline">
           {isLogin ? "Create an account" : "Sign in"}
         </Link>
       </p>

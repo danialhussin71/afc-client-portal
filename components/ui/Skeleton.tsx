@@ -1,44 +1,73 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Grey placeholder block shown while a page loads.
- * Match the shape of the real content so nothing jumps when it arrives.
- */
+/** Grey shimmer block. Size it like the thing that's loading. */
 export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden
-      className={cn("animate-pulse rounded-[var(--radius-control)] bg-[var(--color-raised)]", className)}
-    />
-  );
+  return <div aria-hidden className={cn("skeleton rounded-md", className)} />;
 }
 
-/** A full page skeleton: title, subtitle and a few cards. Good default for loading.tsx. */
-export function PageSkeleton({ cards = 3 }: { cards?: number }) {
+/** Page title + description, matching <PageHeader>. */
+export function HeaderSkeleton() {
   return (
-    <div role="status" aria-label="Loading" className="space-y-8">
-      <div className="space-y-3">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-4 w-96 max-w-full" />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: cards }).map((_, i) => (
-          <Skeleton key={i} className="h-32 rounded-[var(--radius-card)]" />
-        ))}
-      </div>
-      <span className="sr-only">Loading…</span>
+    <div className="mb-8 space-y-3">
+      <Skeleton className="h-3 w-24" />
+      <Skeleton className="h-8 w-64" />
+      <Skeleton className="h-4 w-80 max-w-full" />
     </div>
   );
 }
 
-/** Skeleton rows for tables and lists. */
-export function ListSkeleton({ rows = 5 }: { rows?: number }) {
+export function StatsSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div role="status" aria-label="Loading" className="space-y-3">
-      {Array.from({ length: rows }).map((_, i) => (
-        <Skeleton key={i} className="h-14 w-full" />
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-xl border border-line bg-surface p-5">
+          <Skeleton className="h-3.5 w-24" />
+          <Skeleton className="mt-4 h-8 w-16" />
+          <Skeleton className="mt-3 h-3 w-32" />
+        </div>
       ))}
-      <span className="sr-only">Loading…</span>
+    </div>
+  );
+}
+
+/** Rows with an avatar, two lines and something on the right. */
+export function ListSkeleton({ rows = 5, className }: { rows?: number; className?: string }) {
+  return (
+    <div className={cn("divide-y divide-line-soft rounded-xl border border-line bg-surface", className)}>
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 px-5 py-3.5">
+          <Skeleton className="size-9 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-3.5 w-40" />
+            <Skeleton className="h-3 w-56 max-w-full" />
+          </div>
+          <Skeleton className="hidden h-6 w-16 rounded-full sm:block" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function CardSkeleton({ lines = 3, className }: { lines?: number; className?: string }) {
+  return (
+    <div className={cn("rounded-xl border border-line bg-surface p-5", className)}>
+      <Skeleton className="h-4 w-40" />
+      <div className="mt-5 space-y-3">
+        {Array.from({ length: lines }).map((_, i) => (
+          <Skeleton key={i} className={cn("h-3.5", i === lines - 1 ? "w-2/3" : "w-full")} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Default page skeleton: header, stat row, list. */
+export function PageSkeleton() {
+  return (
+    <div role="status" aria-label="Loading">
+      <HeaderSkeleton />
+      <StatsSkeleton />
+      <ListSkeleton className="mt-8" />
     </div>
   );
 }

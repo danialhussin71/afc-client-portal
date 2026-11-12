@@ -1,43 +1,15 @@
-"use client";
+import * as React from "react";
+import Link from "next/link";
+import { buttonClass, type ButtonSize, type ButtonVariant } from "./button-styles";
 
-import { useFormStatus } from "react-dom";
-import { buttonClass, type Variant } from "./button-styles";
+type Look = { variant?: ButtonVariant; size?: ButtonSize };
 
-
-export function Button({
-  variant = "primary",
-  className,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
-  return <button className={buttonClass(variant, className)} {...props} />;
+/** A plain button. For form submits use <SubmitButton>, which shows a pending state. */
+export function Button({ variant, size, className, type = "button", ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & Look) {
+  return <button type={type} className={buttonClass(variant, size, className)} {...props} />;
 }
 
-/**
- * Submit button for forms that use Server Actions.
- * Disables itself and shows `pendingText` while the action runs, so people
- * can't double-submit.
- */
-export function SubmitButton({
-  children,
-  pendingText = "Working…",
-  variant = "primary",
-  className,
-}: {
-  children: React.ReactNode;
-  pendingText?: string;
-  variant?: Variant;
-  className?: string;
-}) {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" disabled={pending} aria-busy={pending} className={buttonClass(variant, className)}>
-      {pending && (
-        <span
-          aria-hidden
-          className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-        />
-      )}
-      {pending ? pendingText : children}
-    </button>
-  );
+/** A link that looks like a button. */
+export function ButtonLink({ variant, size, className, ...props }: React.ComponentProps<typeof Link> & Look) {
+  return <Link className={buttonClass(variant, size, className)} {...props} />;
 }

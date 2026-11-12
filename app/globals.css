@@ -1,61 +1,281 @@
 @import "tailwindcss";
+@import "./brand.css";
+
+/* `.dark` is set on <html> before first paint by the script in app/layout.tsx. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================================
-   DESIGN TOKENS
-   Change the look of the whole portal here. Every component reads these
-   tokens, so re-branding = editing this block (colours, radius, font).
+   DESIGN SYSTEM
+   Every colour is a token. Components never use raw hex codes: they use the
+   utilities these tokens create (bg-surface, text-ink-muted, border-line,
+   bg-brand, text-on-brand ...). Light and dark stay in lockstep that way.
+   To re-brand, edit app/brand.css, not this file. See DESIGN.md.
    ========================================================================== */
+
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* ---- Type ------------------------------------------------------------ */
+  --font-sans: var(--font-sans-src), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-display-src), var(--font-sans-src), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-src), ui-monospace, "SF Mono", Menlo, monospace;
 
-  --color-bg: #f7f7f8;          /* page background      */
-  --color-surface: #ffffff;     /* cards, panels        */
-  --color-raised: #f1f1f3;      /* hover, skeletons     */
-  --color-line: #e4e4e7;        /* borders              */
-  --color-ink: #18181b;         /* main text            */
-  --color-muted: #63636b;       /* secondary text       */
-  --color-faint: #8b8b93;       /* labels, meta         */
+  /* ---- Neutrals (light) -------------------------------------------------
+     canvas = app background and sidebar. surface = the content panel and
+     cards. raised = hover rows, inputs, chips. */
+  --color-canvas: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-raised: #f3f3f1;
+  --color-sunken: #ececea;
+  --color-line: #e6e5e1;
+  --color-line-soft: #efeeeb;
+  --color-line-strong: #d3d2cd;
 
-  --color-brand: #4f46e5;       /* buttons, links       */
-  --color-brand-hover: #4338ca;
-  --color-brand-ink: #ffffff;   /* text on brand colour */
-  --color-brand-wash: #eef2ff;  /* tinted backgrounds   */
+  --color-ink: #18181b;        /* 17.4:1 on white */
+  --color-ink-muted: #56555b;  /*  7.4:1 */
+  --color-ink-faint: #74737a;  /*  4.7:1 */
 
-  --color-success: #15803d;
-  --color-success-wash: #f0fdf4;
-  --color-danger: #b91c1c;
-  --color-danger-wash: #fef2f2;
+  /* ---- Brand (derived from app/brand.css) ------------------------------ */
+  --color-brand: var(--brand);
+  --color-on-brand: var(--brand-ink);
+  --color-brand-text: var(--brand-text);
+  --color-brand-hover: color-mix(in oklab, var(--brand) 86%, black);
+  --color-brand-wash: color-mix(in oklab, var(--brand) 8%, var(--color-surface));
+  --color-brand-soft: color-mix(in oklab, var(--brand) 16%, var(--color-surface));
+  --color-brand-line: color-mix(in oklab, var(--brand) 32%, transparent);
 
-  --radius-card: 16px;
-  --radius-control: 10px;
+  /* ---- Status. Always pair colour with an icon or a word. -------------- */
+  --color-success: #15803d;  --color-success-wash: #ecf7f0;
+  --color-warning: #b45309;  --color-warning-wash: #fdf4e6;
+  --color-danger: #c62828;   --color-danger-wash: #fdeeee;
+  --color-info: #1d4ed8;     --color-info-wash: #edf2fe;
+
+  /* ---- Radius ---------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 28px;
+
+  /* ---- Elevation ------------------------------------------------------- */
+  --shadow-xs: 0 1px 1px rgb(24 24 27 / 0.04);
+  --shadow-sm: 0 1px 2px rgb(24 24 27 / 0.06), 0 1px 1px rgb(24 24 27 / 0.03);
+  --shadow-md: 0 6px 16px -6px rgb(24 24 27 / 0.12), 0 2px 4px -2px rgb(24 24 27 / 0.06);
+  --shadow-lg: 0 24px 48px -16px rgb(24 24 27 / 0.22), 0 8px 16px -8px rgb(24 24 27 / 0.10);
+  --shadow-panel: 0 0 0 1px var(--color-line), 0 1px 3px rgb(24 24 27 / 0.05);
+
+  /* ---- Motion: one rhythm everywhere ----------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --animate-rise: rise 0.45s var(--ease-out) both;
+  --animate-fade: fade 0.3s ease-out both;
+  --animate-shimmer: shimmer 1.4s infinite;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translate3d(0, 8px, 0); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes shimmer {
+    to { transform: translateX(100%); }
+  }
 }
 
+/* ---- Dark theme: same names, new values ------------------------------- */
+.dark {
+  --brand-text: var(--brand-text-dark);
+
+  --color-canvas: #0a0a0b;
+  --color-surface: #121214;
+  --color-raised: #1a1a1d;
+  --color-sunken: #0e0e10;
+  --color-line: #26262a;
+  --color-line-soft: #1d1d21;
+  --color-line-strong: #36363c;
+
+  --color-ink: #f4f4f3;
+  --color-ink-muted: #a6a5aa;
+  --color-ink-faint: #7f7e85;
+
+  --color-brand-wash: color-mix(in oklab, var(--brand) 14%, var(--color-surface));
+  --color-brand-soft: color-mix(in oklab, var(--brand) 24%, var(--color-surface));
+  --color-brand-line: color-mix(in oklab, var(--brand) 45%, transparent);
+
+  --color-success: #4ade80;  --color-success-wash: #0f2318;
+  --color-warning: #fbbf24;  --color-warning-wash: #271e0c;
+  --color-danger: #f87171;   --color-danger-wash: #2a1415;
+  --color-info: #93b4ff;     --color-info-wash: #111b33;
+
+  --shadow-xs: 0 1px 1px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 8px 20px -8px rgb(0 0 0 / 0.6);
+  --shadow-lg: 0 24px 56px -16px rgb(0 0 0 / 0.7);
+  --shadow-panel: 0 0 0 1px var(--color-line), 0 1px 3px rgb(0 0 0 / 0.4);
+
+  color-scheme: dark;
+}
+
+:root { color-scheme: light; }
+
+/* ============================================================================
+   BASE
+   ========================================================================== */
+
 @layer base {
+  * { border-color: var(--color-line); }
+
   html {
     -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
   }
+
   body {
-    background: var(--color-bg);
+    background: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  h1, h2, h3 {
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
     letter-spacing: -0.02em;
+    line-height: 1.15;
     text-wrap: balance;
   }
-  p {
-    text-wrap: pretty;
-  }
+
+  p { text-wrap: pretty; }
+
+  .tabular, time, [data-numeric] { font-variant-numeric: tabular-nums; }
+
   :focus-visible {
     outline: 2px solid var(--color-brand);
     outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: var(--color-on-brand);
+  }
+
+  button, a, [role="button"], summary, label[for] {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+
+  input::placeholder, textarea::placeholder { color: var(--color-ink-faint); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 99px;
+    border: 3px solid transparent;
+    background-clip: content-box;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================================
+   UTILITIES
+   ========================================================================== */
+
+/* Loading shimmer. Ink-tinted so it shows in both themes. */
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-ink) 6%, transparent), transparent);
+    animation: var(--animate-shimmer);
+  }
+}
+
+/* Frosted bar for sticky headers. */
+@utility glass {
+  background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+}
+
+/* Soft brand glow behind hero areas. */
+@utility brand-glow {
+  background:
+    radial-gradient(60% 90% at 0% 0%, color-mix(in oklab, var(--brand) 14%, transparent), transparent 70%),
+    radial-gradient(50% 70% at 100% 0%, color-mix(in oklab, var(--brand) 8%, transparent), transparent 70%);
+}
+
+/* Faint dotted texture for brand panels. */
+@utility dot-grid {
+  background-image: radial-gradient(color-mix(in srgb, currentColor 18%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Long text (notes, resources, anything written). */
+@utility prose-portal {
+  color: var(--color-ink-muted);
+  line-height: 1.75;
+  max-width: 68ch;
+  & > * + * { margin-top: 1em; }
+  & h2 { color: var(--color-ink); font-size: 1.25rem; font-weight: 600; margin-top: 2em; }
+  & h3 { color: var(--color-ink); font-size: 1.05rem; font-weight: 600; margin-top: 1.6em; }
+  & strong { color: var(--color-ink); font-weight: 600; }
+  & a { color: var(--color-brand-text); text-decoration: underline; text-underline-offset: 3px; }
+  & ul { list-style: disc; padding-left: 1.25em; }
+  & ol { list-style: decimal; padding-left: 1.25em; }
+}
+
+/* Native <dialog>: fade + rise in, scrim behind. */
+dialog[data-ui="dialog"] {
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  max-width: calc(100vw - 2rem);
+  overflow: visible;
+}
+dialog[data-ui="dialog"]::backdrop {
+  background: rgb(10 10 11 / 0.5);
+  backdrop-filter: blur(2px);
+}
+dialog[data-ui="dialog"][open] > * { animation: var(--animate-rise); }
+dialog[data-ui="dialog"][open]::backdrop { animation: var(--animate-fade); }
+
+/* Mobile nav drawer: slides from the left. */
+dialog[data-ui="drawer"] {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(300px, 86vw);
+  background: var(--color-canvas);
+  color: inherit;
+}
+dialog[data-ui="drawer"]::backdrop { background: rgb(10 10 11 / 0.5); }
+dialog[data-ui="drawer"][open] { animation: drawer-in 0.25s var(--ease-out) both; }
+dialog[data-ui="drawer"][open]::backdrop { animation: var(--animate-fade); }
+@keyframes drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: none; }
 }

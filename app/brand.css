@@ -1,0 +1,18 @@
+/* ============================================================================
+   BRAND — the only colours you change to re-brand the portal.
+   Everything else in the design system is derived from these.
+
+   --brand        Main brand colour. Buttons, active nav, links, the sign-in panel.
+   --brand-ink    Text ON the brand colour. #ffffff for dark brands, #0b0b0c for
+                  light ones (yellow, mint, pastel). Must reach 4.5:1 contrast.
+   --brand-text   Brand colour used AS text on white. Same as --brand unless the
+                  brand is light; then use a darker shade that reaches 4.5:1.
+   --brand-text-dark  Brand colour used as text in dark mode (a lighter shade).
+   ========================================================================== */
+
+:root {
+  --brand: #3b5bdb;
+  --brand-ink: #ffffff;
+  --brand-text: #3b5bdb;
+  --brand-text-dark: #91a7ff;
+}

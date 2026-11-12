@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { brand } from "@/lib/brand";
 import { AuthForm } from "../AuthForm";
 
 export const metadata: Metadata = { title: "Sign in" };
@@ -7,8 +8,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { next } = await searchParams;
   return (
     <>
-      <h1 className="text-2xl font-bold">Welcome back</h1>
-      <p className="mb-6 mt-1 text-sm text-[var(--color-muted)]">Sign in to your portal.</p>
+      <div className="mb-8">
+        <h1 className="text-[28px] font-semibold tracking-tight text-ink">Welcome back</h1>
+        <p className="mt-2 text-[15px] text-ink-muted">Sign in to {brand.name}.</p>
+      </div>
       <AuthForm mode="login" next={next} />
     </>
   );

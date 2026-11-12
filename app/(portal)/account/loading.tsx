@@ -1,13 +1,13 @@
-import { Skeleton } from "@/components/ui/Skeleton";
+import { CardSkeleton, HeaderSkeleton } from "@/components/ui";
 
 export default function Loading() {
   return (
-    <div role="status" aria-label="Loading" className="space-y-8">
-      <div className="space-y-3">
-        <Skeleton className="h-8 w-56" />
-        <Skeleton className="h-4 w-80 max-w-full" />
+    <div role="status" aria-label="Loading account">
+      <HeaderSkeleton />
+      <div className="grid gap-4 md:grid-cols-[240px_minmax(0,1fr)] md:gap-10">
+        <div />
+        <CardSkeleton lines={4} className="max-w-2xl" />
       </div>
-      <Skeleton className="h-64 w-full rounded-[var(--radius-card)]" />
     </div>
   );
 }

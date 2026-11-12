@@ -1,12 +1,10 @@
-import { Skeleton, ListSkeleton } from "@/components/ui/Skeleton";
+import { HeaderSkeleton, ListSkeleton, Skeleton } from "@/components/ui";
 
 export default function Loading() {
   return (
-    <div className="space-y-8">
-      <div className="space-y-3">
-        <Skeleton className="h-8 w-40" />
-        <Skeleton className="h-4 w-80 max-w-full" />
-      </div>
+    <div role="status" aria-label="Loading clients">
+      <HeaderSkeleton />
+      <Skeleton className="mb-5 h-10 w-full max-w-sm rounded-lg" />
       <ListSkeleton rows={6} />
     </div>
   );
