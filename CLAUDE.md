@@ -6,6 +6,10 @@ This repo is a working starter: Next.js 16 (App Router) + Supabase auth + Tailwi
 
 **Read `DESIGN.md` before you build any page.** It says which component to use for what, the tokens, and the rules every page follows.
 
+**Ambition:** build everything in the brief. Don't cut features, simplify the logic or leave "v2" stubs. If the brief is big, work through it feature by feature until all of it works. The bar is a product the client's own clients would pay for, and it has to look the part.
+
+**When the brief and DESIGN.md disagree:** the brief decides colours, fonts, wording and content. `DESIGN.md` decides layout, the app shell and components. If a brand rule would change the layout or shell (a dark sidebar, a different nav), keep the design system's version and carry the brand through colours, fonts and logo instead. Tell the user in one line.
+
 ---
 
 ## Build from the brief (the session flow)
@@ -33,12 +37,14 @@ npm run setup
 `npm run setup` finds `tokens.txt` (in `Desktop/AFC SAAS/` or the parent folder), creates the Supabase project, waits for it, fetches the URL + anon + service role keys, switches off email confirmation, applies the migrations and writes `.env.local`. It takes 2 to 4 minutes. **Don't do any of this by hand and don't call the Supabase API yourself.** If it fails, read its message: it says what to do. It is safe to run again.
 
 ### 4. Plan, then show the plan
-The brief describes **features**: a hero feature and one or two smaller ones (calculators, scorecards, trackers, builders, libraries, submit-and-review). Write a short plan and show it before you build:
+The brief describes **features** (calculators, scorecards, trackers, builders, libraries, submit-and-review and more) and how they connect. Write a short plan and show it, then start building straight away:
 - **Each feature:** its pages, what the client does, what they get back, and what the admin sees.
 - **Tables:** name + columns, and who can read/write each one.
 - **The client's home dashboard** and **the admin's view**, from the brief.
 
-Keep v1 to the features in the brief (at most 5 new pages). Then build. Don't wait for approval on small details; make sensible choices and mention them.
+- **Build order:** shared tables and logic first, then the hero feature, then the features around it, then the home dashboard and the admin view that pull from all of them.
+
+Build all of it. Don't wait for approval on details; make sensible choices and mention them.
 
 ### 5. Database changes
 - Every new table goes in a **new** migration file: `supabase/migrations/<YYYYMMDDHHMMSS>_<what>.sql`, with a timestamp later than the existing ones. Never edit a migration that's already applied.
@@ -49,7 +55,7 @@ Keep v1 to the features in the brief (at most 5 new pages). Then build. Don't wa
 ### 6. Build the features
 Follow **Building features** below and `DESIGN.md`.
 - New pages for signed-in users go in `app/(portal)/`. Add each one to `components/shell/nav.ts` (client pages in `MAIN_NAV`, admin pages in `ADMIN_NAV`) with a lucide icon.
-- Build the hero feature first and make it excellent, then the smaller ones.
+- Build the hero feature first and make it excellent, then every other feature to the same standard. Wire up the connections between features the brief describes.
 - Replace the placeholder cards on the client dashboard with the brief's **Home dashboard** (their latest result, their trend, their next move). Keep the admin dashboard's stats and invite card, and add the brief's admin numbers.
 - Every new route gets a `loading.tsx` skeleton, an empty state for each list, and an error message if a query fails.
 
@@ -57,7 +63,10 @@ Follow **Building features** below and `DESIGN.md`.
 ```bash
 npm run build
 ```
-Must pass with no errors. Then `npm run dev`, open http://localhost:3000, sign up (the first account becomes admin) and click through every page. Use each feature with the **worked example from the brief** and check you get the same answer. Fix what's broken.
+Must pass with no errors. Then `npm run dev`, open http://localhost:3000, sign up (the first account becomes admin) and click through every page. Use each feature with the **worked examples from the brief** and check you get the same answers. If the brief's own maths is wrong (a target that wouldn't reach the goal, an example that doesn't add up), fix it, keep the owner's intent, and tell the user what you changed. Fix what's broken.
+
+### 7b. Polish pass
+Go through every screen once more against **Make it beautiful** below, in light and dark mode and at 375px wide. This step is not optional.
 
 ### 8. Put it live
 ```bash
@@ -86,7 +95,17 @@ The point of this portal is tools the client uses on their own, built on the own
 - Show the result big (`font-display`, the brand colour, a chart), then explain it in the owner's words.
 - Every feature has a first-run empty state that explains what it does and gets them started in one click.
 - Numbers: `tabular-nums`, formatted with `Intl.NumberFormat` (currency/units from the brief).
-- Charts: `LineChart`, `BarChart`, `Sparkline`, `ScoreMeter` from `@/components/ui`. No chart libraries.
+- Charts: `LineChart`, `BarChart`, `Sparkline`, `ScoreMeter` from `@/components/ui`. No chart libraries. If a feature needs a chart the kit doesn't have (several lines, grouped bars, a pace line, target markers), extend `components/ui/Chart.tsx` in the same style and add it to `/styleguide`.
+
+**Make it beautiful**
+- Each screen has one hero element: the result, the number or the chart that matters, big (`font-display`, 3xl to 5xl), with room around it. Everything else is quieter.
+- Clear hierarchy: `PageHeader`, then the hero card, then supporting cards in a grid. Group related things in one card instead of many small ones.
+- Generous, consistent spacing (the 4px scale: gaps of 4, 6, 8; card padding 5 to 8). Align everything to the same grid.
+- Use the brand colour sparingly so it means something: the main action, the key number, progress, the active state.
+- Motion with meaning: `animate-rise` on cards as a page loads (stagger 40 to 60ms), numbers and charts that update instantly as inputs change, a clear success state after saving.
+- Status in words and colour (`Badge` with `dot`), never colour alone.
+- Every list, chart and result has a designed empty state that tells a new client what to do first.
+- Check both themes and phone width on every screen. No sideways scrolling, nothing cramped, nothing clipped.
 - Interactive pieces are small Client Components; the page around them stays a Server Component that loads the saved data.
 
 ---
@@ -186,7 +205,7 @@ create policy "Admins write feedback" on public.submission_feedback
 
 **Don't**
 - Don't turn email confirmation back on, add OAuth providers, or add payments unless the brief asks and the user confirms.
-- Don't add big dependencies (UI kits, ORMs, state libraries, animation libraries). The starter has what v1 needs.
+- Don't add big dependencies (UI kits, ORMs, state libraries, animation libraries, chart libraries). Build on the design system.
 - Don't add a landing page. `/` goes to sign-in; the sign-in brand panel is the first impression.
 - Don't change the auth flow, `proxy.ts`, the app shell or the profiles migration unless something is broken.
 

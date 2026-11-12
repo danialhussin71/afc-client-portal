@@ -9,9 +9,10 @@ The brief uses these headings:
 ## Who it's for
 ## Brand kit
 ## Sign-in page
+## How it fits together
 ## Features
-(for each: the moment it's for, screens, inputs, the logic written out in full with a worked example, outputs, what's saved, what the admin sees, the empty state)
+(for each: the moment it's for, screens, the moment of delight, inputs, the logic written out in full with worked examples and a sense check, outputs, what's saved, what the admin sees, the empty state)
 ## Home dashboard
 ## Admin view
 ## Words
-## Not in version 1
+## Not in this version
