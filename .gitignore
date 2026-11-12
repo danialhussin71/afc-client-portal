@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# secrets: never commit these
+.env
+.env.local
+.env.*.local
+tokens.txt
+
+# vercel
+.vercel/
+
+# os
+.DS_Store
+Thumbs.db
+
+# supabase cli cache
+supabase/.temp/
